@@ -17,6 +17,8 @@ class Database:
                 username TEXT,
                 first_name TEXT,
                 last_name TEXT,
+                bot_gender TEXT DEFAULT NULL,
+                user_gender TEXT DEFAULT NULL,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         ''')
@@ -35,14 +37,14 @@ class Database:
         conn.commit()
         conn.close()
 
-    def add_user(self, user_id, username, first_name, last_name):
+    def add_user(self, user_id, username, first_name, last_name, bot_gender=None, user_gender=None):
         conn = sqlite3.connect(self.db_file)
         c = conn.cursor()
         
         c.execute('''
-            INSERT OR IGNORE INTO users (user_id, username, first_name, last_name)
-            VALUES (?, ?, ?, ?)
-        ''', (user_id, username, first_name, last_name))
+            INSERT OR IGNORE INTO users (user_id, username, first_name, last_name, bot_gender, user_gender)
+            VALUES (?, ?, ?, ?, ?, ?)
+        ''', (user_id, username, first_name, last_name, bot_gender, user_gender))
         
         conn.commit()
         conn.close()
@@ -97,6 +99,33 @@ class Database:
             conn.close()
         except Exception as e:
             print(f"Error clearing chat history: {e}")
+
+    def update_user_setting(self, user_id: int, setting_name: str, setting_value):
+        conn = sqlite3.connect(self.db_file)
+        c = conn.cursor()
+        
+        c.execute(f'''
+            UPDATE users 
+            SET {setting_name} = ?
+            WHERE user_id = ?
+        ''', (setting_value, user_id))
+        
+        conn.commit()
+        conn.close()
+
+    def get_user_settings(self, user_id: int):
+        conn = sqlite3.connect(self.db_file)
+        c = conn.cursor()
+        
+        c.execute('''
+            SELECT bot_gender, user_gender
+            FROM users
+            WHERE user_id = ?
+        ''', (user_id,))
+        
+        settings = c.fetchone()
+        conn.close()
+        return settings
 
     def close(self):
         """Close the database connection"""
