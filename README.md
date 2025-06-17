@@ -54,4 +54,4 @@ python bot.py
 - Анализ эмоционального состояния
 - Конфиденциальность данных
 
-<div align="center"> <sub>Проект находится под GNU General Public License v3.0</sub></div>
+<div align="center"> <sub>Проект находится под MIT License/sub></div>
